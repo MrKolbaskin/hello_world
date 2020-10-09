@@ -3,11 +3,48 @@ from flask_restful import Resource
 import pickle
 import cv2
 import os
+import requests
+import base64
+import json
+import operator
 
 class ModelResource(Resource):
     def __init__(self):
         with open('MnistNN.pickle', 'rb') as f:
             self.model = pickle.load(f)
+        
+        self.headers =  {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-IBM-Client-Id": "3a18e76867bf9ea5de2470b8c069cfd2"
+        }
+
+        with open('static/special_prices.json', 'r', encoding='utf-8') as f:
+            self.special_prices = json.load(f)
+
+        with open('static/model_dict.json', 'r', encoding='utf-8') as f:
+            self.model_dict = json.load(f)
+    
+
+    def get_results(self, best_results):
+        result = {
+            'hasBestMatch' : True
+        }
+
+        mark_best, p_best = best_results[0]
+        if mark_best not in self.model_dict or p_best < 0.8:
+            result['hasBestMatch'] = False
+            result['result'] = self.special_prices
+            return result
+
+        result['result'] = []
+        for model, p in best_results:
+            if model in self.model_dict:
+                result['result'].append(self.model_dict[model])
+        
+        return result
+
+
 
     def get(self):
         file = request.files['file']
@@ -23,3 +60,20 @@ class ModelResource(Resource):
             "filemame": file.filename,
             'result_nn': res
             }, 200
+    
+    def post(self):
+        img = request.files['img']
+        b64img = base64.b64encode(img.read())
+        body = {
+            "content": b64img.decode("utf-8")
+        }
+
+        response = requests.post('https://gw.hackathon.vtb.ru/vtb/hackathon/car-recognize', json=body, headers=self.headers)
+
+        response_dict = json.loads(response.content.decode('utf-8'))
+
+        best_results = sorted(response_dict['probabilities'].items(), key=operator.itemgetter(1), reverse=True)[0:5]
+
+        res = self.get_results(best_results)
+
+        return res, 200
