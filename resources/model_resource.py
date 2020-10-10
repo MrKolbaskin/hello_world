@@ -7,6 +7,7 @@ import requests
 import base64
 import json
 import operator
+import numpy as np
 
 class ModelResource(Resource):
     def __init__(self):
@@ -24,6 +25,14 @@ class ModelResource(Resource):
 
         with open('static/model_dict.json', 'r', encoding='utf-8') as f:
             self.model_dict = json.load(f)
+        
+        with open('static/all_models.json', 'r', encoding='utf-8') as f:
+            self.all_models = json.load(f)
+
+        with open('static/model_knn.pkl', 'rb') as f:
+            self.model_knn = pickle.load(f)
+
+        self.max_price = 5844330
     
 
     def get_results(self, best_results):
@@ -37,12 +46,22 @@ class ModelResource(Resource):
             result['result'] = self.special_prices
             return result
 
-        result['result'] = []
-        for model, p in best_results:
-            if model in self.model_dict:
-                result['result'].append(self.model_dict[model])
+        result['result'] = [self.model_dict[mark_best]]     
+        result['result'].extend(self.neighbors(self.make_feature(self.model_dict[mark_best]), self.model_dict[mark_best]['fullTitle']))
         
         return result
+
+    def neighbors(self, feature, fullTitle):
+        neighbors = self.model_knn.kneighbors(feature, return_distance=False).tolist()[0]
+        neighbors_models = list(operator.itemgetter(*neighbors)(self.all_models))
+
+        result = [model for model in neighbors_models if fullTitle not in model['fullTitle']]
+
+        return result
+    
+    def make_feature(self, model):
+        return np.array([[model['minPrice'] / self.max_price, model['transportType'] == 'Легковые']])
+
 
 
 

@@ -3,3 +3,4 @@ flask-restful
 opencv-python
 sklearn
 requests
+numpy
