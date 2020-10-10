@@ -5,7 +5,7 @@ services:
       context: .
       network: host
     ports:
-      - "443:443"
+      - "5000:5000"
     volumes:
       - .:/backend/
 
