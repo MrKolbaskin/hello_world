@@ -35,19 +35,33 @@ class ModelResource(Resource):
         self.max_price = 5844330
     
 
-    def get_results(self, best_results):
+    def get_results(self, best_results, filter_results):
         result = {
             'hasBestMatch' : True
         }
 
         mark_best, p_best = best_results[0]
-        if mark_best not in self.model_dict or p_best < 0.8:
+        if mark_best not in self.model_dict or p_best < 0.5:
             result['hasBestMatch'] = False
             result['result'] = self.special_prices
             return result
-
-        result['result'] = [self.model_dict[mark_best]]     
-        result['result'].extend(self.neighbors(self.make_feature(self.model_dict[mark_best]), self.model_dict[mark_best]['fullTitle']))
+        
+        result['best'] = [self.model_dict[mark_best]]
+        result['result'] = [self.model_dict[mark_best]]
+        neighbors_models = self.neighbors(
+            self.make_feature(self.model_dict[mark_best]),
+            self.model_dict[mark_best]['fullTitle'])
+        
+        result['result'].extend(neighbors_models)
+        result['result'] = list(filter(
+                lambda x: True \
+                    if (filter_results['transportType'] or filter_results['price']) == None \
+                        else \
+                            ((filter_results['price'] and x['minPrice'] < int(filter_results['price'])) \
+                                or \
+                                    (filter_results['transportType'] and x['transportType'].lower() == filter_results['transportType'].lower())),
+                result['result']
+                ))
         
         return result
 
@@ -55,7 +69,7 @@ class ModelResource(Resource):
         neighbors = self.model_knn.kneighbors(feature, return_distance=False).tolist()[0]
         neighbors_models = list(operator.itemgetter(*neighbors)(self.all_models))
 
-        result = [model for model in neighbors_models if fullTitle not in model['fullTitle']]
+        result = [model for model in neighbors_models if fullTitle.lower() not in model['fullTitle'].lower()]
 
         return result
     
@@ -81,6 +95,7 @@ class ModelResource(Resource):
             }, 200
     
     def post(self):
+        filter_response = {"price": request.form.get('price'), "transportType": request.form.get('transportType')}
         img = request.files['img']
         b64img = base64.b64encode(img.read())
         body = {
@@ -93,6 +108,6 @@ class ModelResource(Resource):
 
         best_results = sorted(response_dict['probabilities'].items(), key=operator.itemgetter(1), reverse=True)[0:5]
 
-        res = self.get_results(best_results)
+        res = self.get_results(best_results, filter_response)
 
         return res, 200
