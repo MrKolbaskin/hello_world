@@ -5,14 +5,14 @@ from flask_sslify import SSLify
 from resources.model_resource import ModelResource
 from resources.ssl_verification import SSLResource
 
-context = ('ssl/certificate.crt', 'ssl/private.key')
-sslify = SSLify(app)
-
 UPLOAD_FOLDER = 'uploads'
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 api = Api(app)
+
+context = ('ssl/certificate.crt', 'ssl/private.key')
+sslify = SSLify(app)
 
 api.add_resource(ModelResource, '/')
 api.add_resource(SSLResource, '/.well-known/pki-validation/5BF4B06DA0E86C7D0ABFB5B2AF195FAC.txt')
