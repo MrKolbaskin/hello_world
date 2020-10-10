@@ -1,13 +1,12 @@
 from flask import Flask
 from flask_restful import Api
+from flask_sslify import SSLify
 
 from resources.model_resource import ModelResource
 from resources.ssl_verification import SSLResource
 
-from OpenSSL import SSL
-context = SSL.Context(SSL.SSLv23_METHOD)
-context.use_privatekey_file('ssl/private.key')
-context.use_certificate_file('ssl/certificate.crt')
+context = ('ssl/certificate.crt', 'ssl/private.key')
+sslify = SSLify(app)
 
 UPLOAD_FOLDER = 'uploads'
 
