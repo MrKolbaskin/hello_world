@@ -1,7 +1,7 @@
 version: "3"
 services:
   dns:
-    - 8.8.8.8
+    8.8.8.8:
   backend:
     build: .
     ports:
