@@ -33,4 +33,4 @@ class CarRecognize(Resource):
         for i, label in enumerate(self.label_names):
             dict_result[label] = round(float(prop[0][i]), 5)
         
-        return dict_result
+        return {'probabilities': dict_result}

@@ -22,6 +22,6 @@ api.add_resource(SpecialPrice, '/specialsprices')
 api.add_resource(CarRecognize, '/car-recognize')
 
 if __name__ == '__main__':
-    app.run(debug=True, ssl_context=context, host="0.0.0.0", port=5000)
+    app.run(debug=True, port=5000, host="0.0.0.0", ssl_context=context)
 
-#host="0.0.0.0"
+#host="0.0.0.0" ssl_context=context
