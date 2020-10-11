@@ -14,7 +14,7 @@ class CarRecognize(Resource):
         self.label_names = ['Hyundai Solaris sedan', 'KIA Rio sedan', 'SKODA OCTAVIA sedan', 'Volkswagen Polo sedan', 'Volkswagen Tiguan']
 
     def post(self):
-        file = request.files['img']
+        file = request.files['content']
         file_path = f'uploads/{file.filename}'
         file.save(file_path)
 
