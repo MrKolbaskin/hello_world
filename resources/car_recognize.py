@@ -15,13 +15,11 @@ class CarRecognize(Resource):
         self.label_names = ['Hyundai Solaris', 'KIA Rio', 'SKODA OCTAVIA', 'Volkswagen Polo', 'Volkswagen Tiguan']
 
     def post(self):
-        file = request.get_json()['content']
+        imgb64 = request.get_json()['content']
         file_path = 'uploads/tmp.jpg'
         
         with open(file_path, 'wb') as f:
             f.write(base64.b64decode(imgb64))
-        
-        file.save(file_path)
 
         IMG_SIZE = 224
         try:
