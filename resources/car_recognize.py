@@ -11,7 +11,7 @@ model = tensorflow.keras.models.load_model(model_path)
 
 class CarRecognize(Resource):
     def __init__(self):
-        self.label_names = ['Hyundai Solaris sedan', 'KIA Rio sedan', 'SKODA OCTAVIA sedan', 'Volkswagen Polo sedan', 'Volkswagen Tiguan']
+        self.label_names = ['Hyundai Solaris', 'KIA Rio', 'SKODA OCTAVIA', 'Volkswagen Polo', 'Volkswagen Tiguan']
 
     def post(self):
         file = request.files['content']
