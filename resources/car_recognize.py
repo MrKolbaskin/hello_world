@@ -5,6 +5,7 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 import cv2
 import numpy as np
 import os
+import base64
 
 model_path = 'efficientnetb0_v1'
 model = tensorflow.keras.models.load_model(model_path)
