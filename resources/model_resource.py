@@ -88,7 +88,7 @@ class ModelResource(Resource):
         }
 
         response = requests.post('https://gw.hackathon.vtb.ru/vtb/hackathon/car-recognize', json=body, headers=self.headers)
-        second_res = json.loads(requests.post('https://localhost:5000/car-recognize', files={'content': img}).content.decode('utf-8'))
+        second_res = json.loads(requests.post('https://localhost:5000/car-recognize', files={'content': img}).content.decode('utf-8'), verify=False)
 
         response_dict = json.loads(response.content.decode('utf-8'))
         print(second_res)
